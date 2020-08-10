@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 
-	"got/servlet"
+	"github.com/extvos/kepler/servlet"
 )
 
 type allInOneService struct {
