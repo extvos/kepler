@@ -16,7 +16,7 @@ type allInOneService struct {
 	echo.Echo
 	db        *sql.DB
 	redis     *redis.Client
-	initTasks []servlet.TaskFunc
+	initTasks []servlet.TaskProc
 }
 
 func New(cfg *viper.Viper) (*allInOneService, error) {
@@ -39,7 +39,7 @@ func Initialize() error {
 	return builtinService.Initialize()
 }
 
-func ProbeInit(t servlet.TaskFunc) {
+func ProbeInit(t servlet.TaskProc) {
 	builtinService.ProbeInit(t)
 }
 
@@ -56,7 +56,7 @@ func (svr *allInOneService) Initialize() error {
 	return nil
 }
 
-func (svr *allInOneService) ProbeInit(t servlet.TaskFunc) {
+func (svr *allInOneService) ProbeInit(t servlet.TaskProc) {
 	svr.initTasks = append(svr.initTasks, t)
 }
 

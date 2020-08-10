@@ -8,8 +8,8 @@ import (
 )
 
 type Context interface {
-	DB() *sql.DB
-	Redis() *redis.Client
+	DB(...string) *sql.DB
+	Redis(...string) *redis.Client
 }
 
 type RequestContext interface {

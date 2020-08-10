@@ -12,10 +12,10 @@ type allInOneContext struct {
 	svr *allInOneService
 }
 
-func (ctx allInOneContext) DB() *sql.DB {
+func (ctx allInOneContext) DB(name ...string) *sql.DB {
 	return ctx.svr.db
 }
 
-func (ctx allInOneContext) Redis() *redis.Client {
+func (ctx allInOneContext) Redis(name ...string) *redis.Client {
 	return ctx.svr.redis
 }
