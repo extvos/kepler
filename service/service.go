@@ -2,24 +2,15 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 
-	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 
 	"github.com/extvos/kepler/servlet"
 )
 
-type allInOneService struct {
-	echo.Echo
-	db        *sql.DB
-	redis     *redis.Client
-	initTasks []servlet.TaskProc
-}
-
-func New(cfg *viper.Viper) (*allInOneService, error) {
+func New(cfg servlet.Config) (*allInOneService, error) {
 	var svr = allInOneService{}
 	var e = echo.New()
 	svr.Echo = *e
@@ -31,7 +22,7 @@ func New(cfg *viper.Viper) (*allInOneService, error) {
 	return &svr, nil
 }
 
-func Config(cfg *viper.Viper) error {
+func Config(cfg servlet.Config) error {
 	return builtinService.Config(cfg)
 }
 
@@ -41,54 +32,6 @@ func Initialize() error {
 
 func ProbeInit(t servlet.TaskProc) {
 	builtinService.ProbeInit(t)
-}
-
-func (svr *allInOneService) Config(cfg *viper.Viper) error {
-	return nil
-}
-
-func (svr *allInOneService) Initialize() error {
-	for _, t := range svr.initTasks {
-		if e := t(svr.context(nil)); nil != e {
-			return e
-		}
-	}
-	return nil
-}
-
-func (svr *allInOneService) ProbeInit(t servlet.TaskProc) {
-	svr.initTasks = append(svr.initTasks, t)
-}
-
-func (svr *allInOneService) context(ctx echo.Context) servlet.RequestContext {
-	return &allInOneContext{
-		svr:     svr,
-		Context: ctx,
-	}
-}
-
-func (svr *allInOneService) handlerFunc(f servlet.HandlerFunc) echo.HandlerFunc {
-	var ff = func(ctx echo.Context) error {
-		return f(svr.context(ctx))
-	}
-	return ff
-}
-
-func (svr *allInOneService) mw(m servlet.MiddlewareFunc) echo.MiddlewareFunc {
-	var ff = func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-		return svr.handlerFunc(m(func(ctx servlet.RequestContext) error {
-			return handlerFunc(ctx)
-		}))
-	}
-	return ff
-}
-
-func (svr *allInOneService) middleware(m ...servlet.MiddlewareFunc) []echo.MiddlewareFunc {
-	var ms []echo.MiddlewareFunc
-	for _, x := range m {
-		ms = append(ms, svr.mw(x))
-	}
-	return ms
 }
 
 func Start(address string) error {
@@ -249,7 +192,7 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 var builtinService *allInOneService
 
 func init() {
-	if s, e := New(viper.GetViper()); nil != e {
+	if s, e := New(servlet.MakeConfig(viper.GetViper())); nil != e {
 		panic(e)
 	} else {
 		builtinService = s
