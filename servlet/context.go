@@ -9,7 +9,7 @@ type Context interface {
 	Redis(...string) Redis
 	Publisher(...string) Publisher
 	Subscriber(...string) Subscriber
-	Config() Config
+	Config(...string) Config
 }
 
 type RequestContext interface {
