@@ -19,19 +19,19 @@ type allInOneService struct {
 
 	dbConnectors []struct {
 		name      string
-		connector SqlConnector
+		connector servlet.SqlConnector
 	}
 	redisConnectors []struct {
 		name      string
-		connector RedisConnector
+		connector servlet.RedisConnector
 	}
 	pubConnectors []struct {
 		name      string
-		connector PublishConnector
+		connector servlet.PublishConnector
 	}
 	subConnectors []struct {
 		name      string
-		connector SubscribeConnector
+		connector servlet.SubscribeConnector
 	}
 }
 
@@ -43,19 +43,19 @@ func (svr *allInOneService) Config(cfg servlet.Config) error {
 	return nil
 }
 
-func (svr *allInOneService) RequireDatabase(name string, connector ...SqlConnector) {
+func (svr *allInOneService) RequireDatabase(name string, connector ...servlet.SqlConnector) {
 
 }
 
-func (svr *allInOneService) RequireRedis(name string, connector ...RedisConnector) {
+func (svr *allInOneService) RequireRedis(name string, connector ...servlet.RedisConnector) {
 
 }
 
-func (svr *allInOneService) RequirePublisher(name string, connector ...PublishConnector) {
+func (svr *allInOneService) RequirePublisher(name string, connector ...servlet.PublishConnector) {
 
 }
 
-func (svr *allInOneService) RequireSubscriber(name string, connector ...SubscribeConnector) {
+func (svr *allInOneService) RequireSubscriber(name string, connector ...servlet.SubscribeConnector) {
 
 }
 
