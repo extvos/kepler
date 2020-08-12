@@ -54,3 +54,7 @@ func (ctx allInOneContext) Subscriber(name ...string) servlet.Subscriber {
 		return ctx.svr.subMap[DefaultName]
 	}
 }
+
+func (ctx allInOneContext) Config() servlet.Config {
+	return ctx.svr.cfg
+}
