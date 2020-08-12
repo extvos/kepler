@@ -24,10 +24,15 @@ type Redis interface {
 	LPop(string) (interface{}, error)
 	RPop(string) (interface{}, error)
 	LRange(string) (int, error)
+	LLen(string) int
 
-	// MAP
-	MSet(string, string, interface{}, ...int64) error
-	MGet(string, string) (interface{}, error)
+	// HASH
+	HSet(string, string, interface{}, ...int64) error
+	HGet(string, string) (interface{}, error)
+	HDel(string, string) error
+	HExists(string, string) bool
+	HLen(string) int
+	HKeys(string, string) []string
 
 	// Increase and Decrease
 	Incr(string, ...int64) (int64, error)
