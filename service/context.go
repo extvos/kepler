@@ -1,9 +1,6 @@
 package service
 
 import (
-	"database/sql"
-
-	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
 
 	"github.com/extvos/kepler/servlet"
@@ -14,7 +11,7 @@ type allInOneContext struct {
 	svr *allInOneService
 }
 
-func (ctx allInOneContext) DB(name ...string) *sql.DB {
+func (ctx allInOneContext) SQL(name ...string) servlet.SQL {
 	if nil == ctx.svr.dbMap {
 		return nil
 	}
@@ -25,7 +22,7 @@ func (ctx allInOneContext) DB(name ...string) *sql.DB {
 	}
 }
 
-func (ctx allInOneContext) Redis(name ...string) *redis.Client {
+func (ctx allInOneContext) Redis(name ...string) servlet.Redis {
 	if nil == ctx.svr.redisMap {
 		return nil
 	}

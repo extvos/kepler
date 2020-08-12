@@ -1,8 +1,9 @@
 package servlet
 
 import (
-	"github.com/spf13/viper"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type Config interface {
@@ -27,11 +28,10 @@ type Config interface {
 	GetStringMapString(k string, v ...map[string]string) map[string]string
 	GetStringMapStringSlice(k string, v ...map[string][]string) map[string][]string
 
-	Unmashal(v interface{}) error
-	UnmashalKey(k string, v interface{}) error
+	Unmarshal(v interface{}) error
+	UnmarshalKey(k string, v interface{}) error
 	Sub(k string) Config
 }
-
 
 type vConfig struct {
 	v *viper.Viper
@@ -165,10 +165,10 @@ func (c vConfig) GetStringMapStringSlice(k string, v ...map[string][]string) map
 	return c.v.GetStringMapStringSlice(k)
 }
 
-func (c vConfig) Unmashal(v interface{}) error {
+func (c vConfig) Unmarshal(v interface{}) error {
 	return c.v.Unmarshal(v)
 }
 
-func (c vConfig) UnmashalKey(k string, v interface{}) error {
+func (c vConfig) UnmarshalKey(k string, v interface{}) error {
 	return c.v.UnmarshalKey(k, v)
 }

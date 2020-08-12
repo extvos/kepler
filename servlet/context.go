@@ -3,7 +3,6 @@ package servlet
 import (
 	"database/sql"
 
-	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,9 +14,36 @@ type Subscriber interface {
 	Subscribe(topic string, handler MessageProc, channel ...string) error
 }
 
+type Redis interface {
+	// K:V
+	Get(string) (interface{}, error)
+	Set(string, interface{}, ...int64) error
+	Keys(string) []string
+	Del(string) error
+
+	// LIST
+	LPush(string, interface{}) error
+	RPush(string, interface{}) error
+	LPop(string) (interface{}, error)
+	RPop(string) (interface{}, error)
+	LRange(string) (int, error)
+
+	// MAP
+	MSet(string, string, interface{}, ...int64) error
+	MGet(string, string) (interface{}, error)
+
+	//
+	Incr(string, ...int64) (int64, error)
+}
+
+type SQL interface {
+	DB() *sql.DB
+	Name() string
+}
+
 type Context interface {
-	DB(...string) *sql.DB
-	Redis(...string) *redis.Client
+	SQL(...string) SQL
+	Redis(...string) Redis
 	Publisher(...string) Publisher
 	Subscriber(...string) Subscriber
 }

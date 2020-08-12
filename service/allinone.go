@@ -1,9 +1,6 @@
 package service
 
 import (
-	"database/sql"
-
-	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
 
 	"github.com/extvos/kepler/servlet"
@@ -14,15 +11,15 @@ type allInOneService struct {
 	//db        *sql.DB
 	//redis     *redis.Client
 	initTasks []servlet.TaskProc
-	dbMap     map[string]*sql.DB
-	redisMap  map[string]*redis.Client
+	dbMap     map[string]servlet.SQL
+	redisMap  map[string]servlet.Redis
 	pubMap    map[string]servlet.Publisher
 	subMap    map[string]servlet.Subscriber
 	resMap    map[string]interface{}
 
 	dbConnectors []struct {
 		name      string
-		connector DBConnector
+		connector SqlConnector
 	}
 	redisConnectors []struct {
 		name      string
@@ -46,7 +43,7 @@ func (svr *allInOneService) Config(cfg servlet.Config) error {
 	return nil
 }
 
-func (svr *allInOneService) RequireDatabase(name string, connector ...DBConnector) {
+func (svr *allInOneService) RequireDatabase(name string, connector ...SqlConnector) {
 
 }
 
