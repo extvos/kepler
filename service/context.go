@@ -55,6 +55,10 @@ func (ctx allInOneContext) Subscriber(name ...string) servlet.Subscriber {
 	}
 }
 
+func (ctx allInOneContext) Resource(name string) interface{} {
+	return ctx.svr.resMap[name]
+}
+
 func (ctx allInOneContext) Config(key ...string) servlet.Config {
 	if len(key) > 0 {
 		return ctx.svr.cfg.Sub(key[0])

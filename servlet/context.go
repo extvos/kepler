@@ -10,6 +10,7 @@ type Context interface {
 	Publisher(...string) Publisher
 	Subscriber(...string) Subscriber
 	Config(...string) Config
+	Resource(name string) interface{}
 }
 
 type RequestContext interface {

@@ -2,8 +2,9 @@ package service
 
 import (
 	"fmt"
-	"github.com/extvos/kepler/servlet"
 	"strings"
+
+	"github.com/extvos/kepler/servlet"
 )
 
 func DefaultDBConnector(cfg servlet.Config) (servlet.SQL, error) {

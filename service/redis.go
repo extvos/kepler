@@ -2,8 +2,9 @@ package service
 
 import (
 	"fmt"
-	"github.com/extvos/kepler/servlet"
 	"strings"
+
+	"github.com/extvos/kepler/servlet"
 )
 
 func DefaultRedisConnector(cfg servlet.Config) (servlet.Redis, error) {

@@ -91,22 +91,62 @@ func (svr *allInOneService) ProbeInit(t servlet.TaskProc) {
 }
 
 func (svr *allInOneService) ProbeResource(name string, res interface{}) {
-
+	svr.resMap[name] = res
 }
 
 func (svr *allInOneService) configDatabase() error {
+	for i, c := range svr.dbConnectors {
+		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
+			return e
+		} else {
+			svr.dbMap[c.name] = p
+			if i == 0 {
+				svr.dbMap[DefaultName] = p
+			}
+		}
+	}
 	return nil
 }
 
 func (svr *allInOneService) configRedis() error {
+	for i, c := range svr.redisConnectors {
+		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
+			return e
+		} else {
+			svr.redisMap[c.name] = p
+			if i == 0 {
+				svr.redisMap[DefaultName] = p
+			}
+		}
+	}
 	return nil
 }
 
 func (svr *allInOneService) configPublish() error {
+	for i, c := range svr.pubConnectors {
+		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
+			return e
+		} else {
+			svr.pubMap[c.name] = p
+			if i == 0 {
+				svr.pubMap[DefaultName] = p
+			}
+		}
+	}
 	return nil
 }
 
 func (svr *allInOneService) configSubscribe() error {
+	for i, c := range svr.subConnectors {
+		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
+			return e
+		} else {
+			svr.subMap[c.name] = p
+			if i == 0 {
+				svr.subMap[DefaultName] = p
+			}
+		}
+	}
 	return nil
 }
 
