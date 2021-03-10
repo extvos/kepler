@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/extvos/kepler/service"
 
 	"github.com/spf13/cobra"
 )
@@ -12,6 +13,8 @@ var demoCmd = &cobra.Command{
 	Short: "Run a demo application powered by kepler.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("To be done...")
+		listenAddr, _ := cmd.Flags().GetString("listen")
+		service.Start(listenAddr)
 	},
 }
 
@@ -20,6 +23,7 @@ func DemoCmd() *cobra.Command {
 }
 
 func init() {
-	demoCmd.Flags().StringP("listen","L","127.0.0.1:8080","Demo application listen address and port.")
+	demoCmd.Flags().StringP("listen", "L", "127.0.0.1:8080", "Demo application listen address and port.")
+	demoCmd.Flags().StringP("config", "C", "", "Configuration filename.")
 	//rootCmd.AddCommand(newCmd)
 }

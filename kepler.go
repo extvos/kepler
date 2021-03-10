@@ -44,10 +44,9 @@ func init() {
 	rootCmd.Flags().BoolP("verbose", "V", false, "Toggle debug messages")
 }
 
-
 func init() {
 	//rootCmd.AddCommand(cmd.InitCmd(), cmd.VersionCmd(), cmd.ServeCmd())
-	rootCmd.AddCommand(cli.NewCmd())
+	rootCmd.AddCommand(cli.NewCmd(), cli.DemoCmd())
 }
 
 func main() {
