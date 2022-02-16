@@ -1,8 +1,6 @@
 package servlet
 
-import (
-	"github.com/labstack/echo/v4"
-)
+import "github.com/gofiber/fiber/v2"
 
 type Context interface {
 	SQL(...string) SQL
@@ -14,8 +12,8 @@ type Context interface {
 }
 
 type RequestContext interface {
-	echo.Context
 	Context
+	Ctx() *fiber.Ctx
 }
 
 type TaskContext interface {

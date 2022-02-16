@@ -1,9 +1,8 @@
 package service
 
 import (
-	"github.com/labstack/echo/v4"
-
 	"github.com/extvos/kepler/servlet"
+	"github.com/gofiber/fiber/v2"
 )
 
 type dbConnector struct {
@@ -27,7 +26,7 @@ type subConnector struct {
 }
 
 type allInOneService struct {
-	echo.Echo
+	fiber.App
 	cfg             servlet.Config
 	initTasks       []servlet.TaskProc
 	dbMap           map[string]servlet.SQL
@@ -172,33 +171,39 @@ func (svr *allInOneService) Config(cfg servlet.Config) error {
 	return nil
 }
 
-func (svr *allInOneService) context(ctx echo.Context) servlet.RequestContext {
+func (svr *allInOneService) context(ctx *fiber.Ctx) servlet.RequestContext {
 	return &allInOneContext{
-		svr:     svr,
-		Context: ctx,
+		svr: svr,
+		ctx: ctx,
 	}
 }
 
-func (svr *allInOneService) handlerFunc(f servlet.HandlerFunc) echo.HandlerFunc {
-	var ff = func(ctx echo.Context) error {
+func (svr *allInOneService) handlerFunc(f servlet.HandlerFunc) fiber.Handler {
+	var ff = func(ctx *fiber.Ctx) error {
 		return f(svr.context(ctx))
 	}
 	return ff
 }
 
-func (svr *allInOneService) mw(m servlet.MiddlewareFunc) echo.MiddlewareFunc {
-	var ff = func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-		return svr.handlerFunc(m(func(ctx servlet.RequestContext) error {
-			return handlerFunc(ctx)
-		}))
+func (svr *allInOneService) handlerFuncs(f ...servlet.HandlerFunc) []fiber.Handler {
+	var handlers []fiber.Handler
+	for _, h := range f {
+		handlers = append(handlers, svr.handlerFunc(h))
 	}
-	return ff
+	return handlers
 }
 
-func (svr *allInOneService) middleware(m ...servlet.MiddlewareFunc) []echo.MiddlewareFunc {
-	var ms []echo.MiddlewareFunc
-	for _, x := range m {
-		ms = append(ms, svr.mw(x))
-	}
-	return ms
-}
+// func (svr *allInOneService) mw(m servlet.HandlerFunc) fiber.Handler {
+// 	var ff = func(ctx *fiber.Ctx) error {
+// 		return m(svr.context(ctx))
+// 	}
+// 	return ff
+// }
+
+// func (svr *allInOneService) middleware(m ...servlet.MiddlewareFunc) []fiber.Handler {
+// 	var ms []fiber.Handler
+// 	for _, x := range m {
+// 		ms = append(ms, svr.mw(x))
+// 	}
+// 	return ms
+// }

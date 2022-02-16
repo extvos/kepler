@@ -48,3 +48,7 @@ type SQL interface {
 	Name() string
 	Driver() string
 }
+
+type Cache interface {
+	Bucket(string) error
+}

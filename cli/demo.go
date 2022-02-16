@@ -14,7 +14,7 @@ var demoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("To be done...")
 		listenAddr, _ := cmd.Flags().GetString("listen")
-		service.Start(listenAddr)
+		service.Listen(listenAddr)
 	},
 }
 
@@ -25,5 +25,5 @@ func DemoCmd() *cobra.Command {
 func init() {
 	demoCmd.Flags().StringP("listen", "L", "127.0.0.1:8080", "Demo application listen address and port.")
 	demoCmd.Flags().StringP("config", "C", "", "Configuration filename.")
-	//rootCmd.AddCommand(newCmd)
+	// rootCmd.AddCommand(newCmd)
 }

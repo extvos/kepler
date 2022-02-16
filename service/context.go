@@ -1,14 +1,17 @@
 package service
 
 import (
-	"github.com/labstack/echo/v4"
-
 	"github.com/extvos/kepler/servlet"
+	"github.com/gofiber/fiber/v2"
 )
 
 type allInOneContext struct {
-	echo.Context
+	ctx *fiber.Ctx
 	svr *allInOneService
+}
+
+func (ctx allInOneContext) Ctx() *fiber.Ctx {
+	return ctx.ctx
 }
 
 func (ctx allInOneContext) SQL(name ...string) servlet.SQL {
