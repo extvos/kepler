@@ -5,45 +5,62 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+/**
+  Database connector structure
+*/
 type dbConnector struct {
 	name      string
 	connector servlet.SqlConnector
 }
 
+/**
+  Redis connector structure
+*/
 type redisConnector struct {
 	name      string
 	connector servlet.RedisConnector
 }
 
+/**
+  MSQ publish connector structure
+*/
 type pubConnector struct {
 	name      string
 	connector servlet.PublishConnector
 }
 
+/**
+  MSQ subscribe connector structure
+*/
 type subConnector struct {
 	name      string
 	connector servlet.SubscribeConnector
 }
 
+/**
+  All In One Service structure
+*/
 type allInOneService struct {
-	fiber.App
-	cfg             servlet.Config
-	initTasks       []servlet.TaskProc
-	dbMap           map[string]servlet.SQL
-	redisMap        map[string]servlet.Redis
-	pubMap          map[string]servlet.Publisher
-	subMap          map[string]servlet.Subscriber
-	resMap          map[string]interface{}
-	dbConnectors    []dbConnector
-	redisConnectors []redisConnector
-	pubConnectors   []pubConnector
-	subConnectors   []subConnector
+	fiber.App                                     // the fiber app
+	cfg             servlet.Config                // the configuration
+	initTasks       []servlet.TaskProc            // application initialize tasks
+	dbMap           map[string]servlet.SQL        // Database connections
+	redisMap        map[string]servlet.Redis      // Redis connections
+	pubMap          map[string]servlet.Publisher  // Publisher connections
+	subMap          map[string]servlet.Subscriber // Subscriber connections
+	resMap          map[string]interface{}        // Resource instances
+	dbConnectors    []dbConnector                 // Database connectors
+	redisConnectors []redisConnector              // Redis connectors
+	pubConnectors   []pubConnector                // Publisher connectors
+	subConnectors   []subConnector                // Subscriber connectors
 }
 
 const (
-	DefaultName = "*"
+	DefaultName = "*" // Default name for connections
 )
 
+// RequireDatabase
+// Get database connection by connector
 func (svr *allInOneService) RequireDatabase(name string, connector ...servlet.SqlConnector) {
 	var c = dbConnector{name: name, connector: DefaultDBConnector}
 	if len(connector) > 0 {
@@ -52,6 +69,8 @@ func (svr *allInOneService) RequireDatabase(name string, connector ...servlet.Sq
 	svr.dbConnectors = append(svr.dbConnectors, c)
 }
 
+// RequireRedis
+// Get redis connection by connector
 func (svr *allInOneService) RequireRedis(name string, connector ...servlet.RedisConnector) {
 	var c = redisConnector{name: name, connector: DefaultRedisConnector}
 	if len(connector) > 0 {
@@ -60,6 +79,8 @@ func (svr *allInOneService) RequireRedis(name string, connector ...servlet.Redis
 	svr.redisConnectors = append(svr.redisConnectors, c)
 }
 
+// RequirePublisher
+// Get publisher connection by connector
 func (svr *allInOneService) RequirePublisher(name string, connector ...servlet.PublishConnector) {
 	var c = pubConnector{name: name, connector: DefaultPubConnector}
 	if len(connector) > 0 {
@@ -68,6 +89,8 @@ func (svr *allInOneService) RequirePublisher(name string, connector ...servlet.P
 	svr.pubConnectors = append(svr.pubConnectors, c)
 }
 
+// RequireSubscriber
+// Get subscriber connection by connector
 func (svr *allInOneService) RequireSubscriber(name string, connector ...servlet.SubscribeConnector) {
 	var c = subConnector{name: name, connector: DefaultSubConnector}
 	if len(connector) > 0 {
@@ -76,6 +99,8 @@ func (svr *allInOneService) RequireSubscriber(name string, connector ...servlet.
 	svr.subConnectors = append(svr.subConnectors, c)
 }
 
+// Initialize
+// Run service initialization
 func (svr *allInOneService) Initialize() error {
 	for _, t := range svr.initTasks {
 		if e := t(svr.context(nil)); nil != e {
@@ -85,10 +110,14 @@ func (svr *allInOneService) Initialize() error {
 	return nil
 }
 
+// ProbeInit
+// Probe initialization tasks
 func (svr *allInOneService) ProbeInit(t servlet.TaskProc) {
 	svr.initTasks = append(svr.initTasks, t)
 }
 
+// ProbeResource
+// Probe resource instances
 func (svr *allInOneService) ProbeResource(name string, res interface{}) {
 	svr.resMap[name] = res
 }
@@ -149,6 +178,8 @@ func (svr *allInOneService) configSubscribe() error {
 	return nil
 }
 
+// Config
+// Configure service with specified configuration.
 func (svr *allInOneService) Config(cfg servlet.Config) error {
 	svr.cfg = cfg
 	svr.dbMap = make(map[string]servlet.SQL)

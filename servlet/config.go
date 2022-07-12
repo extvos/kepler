@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config
+// Configuration interface
 type Config interface {
 	Get(k string, v ...interface{}) interface{}
 	GetString(k string, v ...string) string
@@ -37,6 +39,8 @@ type vConfig struct {
 	v *viper.Viper
 }
 
+// MakeConfig
+// Make a Config instance from Viper.
 func MakeConfig(v *viper.Viper) Config {
 	if nil == v {
 		v = viper.New()

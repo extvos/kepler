@@ -2,14 +2,17 @@ package servlet
 
 import "database/sql"
 
+// Publisher defines the interface for publishing topics.
 type Publisher interface {
 	Publish(topic string, data interface{}) error
 }
 
+// Subscriber  defines the interface for subscribing messages from topics.
 type Subscriber interface {
 	Subscribe(topic string, handler MessageProc, channel ...string) error
 }
 
+// Redis defines the interface for Redis operations.
 type Redis interface {
 	// K:V
 	Get(string) (interface{}, error)
@@ -43,12 +46,14 @@ type Redis interface {
 	ExpireAt(string, int64) error
 }
 
+// SQL defines the interface for SQL Database operations.
 type SQL interface {
 	DB() *sql.DB
 	Name() string
 	Driver() string
 }
 
+// Cache defines the interface for cache operations.
 type Cache interface {
 	Bucket(string) error
 }
