@@ -137,6 +137,11 @@ func Group(prefix string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
     return builtinService.Group(prefix, builtinService.handlerFuncs(handlerFuncs...)...)
 }
 
+// Mount another service into current service as seperated parts.
+func Mount(prefix string, service *allInOneService) fiber.Router {
+    return service.Mount(prefix, &service.App)
+}
+
 // // URI generates a URI from handler.
 // func Uri(handler servlet.HandlerFunc, params ...interface{}) string {
 // 	return builtinService.Uri(builtinService.handlerFunc(handler), params...)
