@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"github.com/extvos/kepler/service"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -14,7 +15,7 @@ var demoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("To be done...")
 		listenAddr, _ := cmd.Flags().GetString("listen")
-		service.Listen(listenAddr)
+		log.Fatalln(service.Listen(listenAddr))
 	},
 }
 
