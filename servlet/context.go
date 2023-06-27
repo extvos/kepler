@@ -17,7 +17,9 @@ type Context interface {
 // Extension context for HTTP Request
 type RequestContext interface {
 	Context
+	Session() Session
 	Ctx() *fiber.Ctx
+	Next() error
 }
 
 // TaskContext

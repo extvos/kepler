@@ -10,3 +10,4 @@ type (
 	// HTTPErrorHandler is a centralized HTTP error handler.
 	HTTPErrorHandler func(error, RequestContext)
 )
+type Handler = func(RequestContext) error

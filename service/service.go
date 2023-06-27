@@ -1,112 +1,112 @@
 package service
 
 import (
-    "github.com/gofiber/fiber/v2"
-    "github.com/spf13/viper"
-    "github.com/valyala/fasthttp"
+	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
+	"github.com/valyala/fasthttp"
 
-    "github.com/extvos/kepler/servlet"
+	"github.com/extvos/kepler/servlet"
 )
 
-func New(cfg servlet.Config) (*allInOneService, error) {
-    var svr = allInOneService{}
-    var fcfg = fiber.Config{}
-    svr.App = *fiber.New(fcfg)
-    if nil != cfg {
-        if e := svr.Config(cfg); nil != e {
-            return nil, e
-        }
-    }
-    return &svr, nil
+func New(cfg servlet.Config) (*KeplerService, error) {
+	var svr = KeplerService{}
+	var fcfg = fiber.Config{}
+	svr._app = fiber.New(fcfg)
+	if nil != cfg {
+		if e := svr.Config(cfg); nil != e {
+			return nil, e
+		}
+	}
+	return &svr, nil
 }
 
 func Config(cfg servlet.Config) error {
-    return builtinService.Config(cfg)
+	return builtinService.Config(cfg)
 }
 
 func Initialize() error {
-    return builtinService.Initialize()
+	return builtinService.Initialize()
 }
 
-func ProbeInit(t servlet.TaskProc) {
-    builtinService.ProbeInit(t)
+func MountInitialization(t servlet.TaskProc) {
+	builtinService.MountInitialization(t)
 }
 
 func Listen(address string) error {
-    return builtinService.Listen(address)
-    // return builtinService.Listen(address)
+	return builtinService.Listen(address)
+	// return builtinService.Listen(address)
 }
 
 func ListenTLS(address string, certFile, keyFile string) (err error) {
-    return builtinService.ListenTLS(address, certFile, keyFile)
+	return builtinService.ListenTLS(address, certFile, keyFile)
 }
 func Shutdown() error {
-    return builtinService.Shutdown()
+	return builtinService.Shutdown()
 }
 
 // Use adds middleware to the chain which is run after fiber.Router.
-func Use(intfs ...interface{}) fiber.Router {
-    return builtinService.Use(intfs...)
+func Use(handlers ...interface{}) fiber.Router {
+	return builtinService.Use(handlers...)
 }
 
 // Connect registers a new Connect fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Connect(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Connect(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Connect(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Connect(path, handlers...)
 }
 
 // Delete registers a new Delete fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func Delete(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Delete(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Delete(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Delete(path, handlers...)
 }
 
 // Get registers a new Get fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func Get(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Get(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Get(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Get(path, handlers...)
 }
 
 // Head registers a new Head fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Head(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Head(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Head(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Head(path, handlers...)
 }
 
 // Options registers a new Options fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Options(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Options(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Options(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Options(path, handlers...)
 }
 
 // Patch registers a new Patch fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Patch(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Patch(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Patch(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Patch(path, handlers...)
 }
 
 // Post registers a new Post fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Post(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Post(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Post(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Post(path, handlers...)
 }
 
 // Put registers a new Put fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Put(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Put(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Put(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Put(path, handlers...)
 }
 
 // Trace registers a new Trace fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Trace(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Trace(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Trace(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Trace(path, handlers...)
 }
 
 // All registers a new fiber.Route for all HTTP methods and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func All(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.All(path, builtinService.handlerFuncs(handlerFuncs...)...)
+func All(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.All(path, handlers...)
 }
 
 // Match registers a new fiber.Route for multiple HTTP methods and path with matching
@@ -118,7 +118,7 @@ func All(path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
 // Static registers a new fiber.Route with path prefix to serve static files from the
 // provided root directory.
 func Static(prefix, root string) fiber.Router {
-    return builtinService.Static(prefix, root)
+	return builtinService.Static(prefix, root)
 }
 
 // File registers a new fiber.Route with path to serve a static file with optional fiber.Route-level middleware.
@@ -128,18 +128,18 @@ func Static(prefix, root string) fiber.Router {
 
 // Add registers a new fiber.Route for an HTTP method and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func Add(method, path string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Add(method, path, builtinService.handlerFuncs(handlerFuncs...)...)
+func Add(method, path string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Add(method, path, handlers...)
 }
 
 // Group creates a new fiber.Router group with prefix and optional group-level middleware.
-func Group(prefix string, handlerFuncs ...servlet.HandlerFunc) fiber.Router {
-    return builtinService.Group(prefix, builtinService.handlerFuncs(handlerFuncs...)...)
+func Group(prefix string, handlers ...servlet.HandlerFunc) fiber.Router {
+	return builtinService.Group(prefix, handlers...)
 }
 
 // Mount another service into current service as seperated parts.
-func Mount(prefix string, service *allInOneService) fiber.Router {
-    return service.Mount(prefix, &service.App)
+func Mount(prefix string, service *KeplerService) fiber.Router {
+	return service.Mount(prefix, service)
 }
 
 // // URI generates a URI from handler.
@@ -164,14 +164,14 @@ func Mount(prefix string, service *allInOneService) fiber.Router {
 
 // AcquireContext returns an empty `RequestContext` instance from the pool.
 // You must return the context by calling `ReleaseContext()`.
-func AcquireContext(fctx *fasthttp.RequestCtx) *fiber.Ctx {
-    return builtinService.AcquireCtx(fctx)
+func AcquireContext(ctx *fasthttp.RequestCtx) *fiber.Ctx {
+	return builtinService.AcquireContext(ctx)
 }
 
 // ReleaseContext returns the `RequestContext` instance back to the pool.
 // You must call it after `AcquireContext()`.
 func ReleaseContext(c *fiber.Ctx) {
-    builtinService.ReleaseCtx(c)
+	builtinService.ReleaseContext(c)
 }
 
 // ServeHTTP implements `http.Handler` interface, which serves HTTP requests.
@@ -179,12 +179,12 @@ func ReleaseContext(c *fiber.Ctx) {
 // 	builtinService.Se(w, r)
 // }
 
-var builtinService *allInOneService
+var builtinService *KeplerService
 
 func init() {
-    if s, e := New(servlet.MakeConfig(viper.GetViper())); nil != e {
-        panic(e)
-    } else {
-        builtinService = s
-    }
+	if s, e := New(servlet.MakeConfig(viper.GetViper())); nil != e {
+		panic(e)
+	} else {
+		builtinService = s
+	}
 }

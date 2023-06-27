@@ -5,16 +5,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type allInOneContext struct {
+type keplerContext struct {
 	ctx *fiber.Ctx
-	svr *allInOneService
+	svr *KeplerService
 }
 
-func (ctx allInOneContext) Ctx() *fiber.Ctx {
+func (ctx keplerContext) Ctx() *fiber.Ctx {
 	return ctx.ctx
 }
 
-func (ctx allInOneContext) SQL(name ...string) servlet.SQL {
+func (ctx keplerContext) Next() error {
+	return ctx.ctx.Next()
+}
+
+func (ctx keplerContext) Session() servlet.Session {
+	return nil
+}
+
+func (ctx keplerContext) SQL(name ...string) servlet.SQL {
 	if nil == ctx.svr.dbMap {
 		return nil
 	}
@@ -25,7 +33,7 @@ func (ctx allInOneContext) SQL(name ...string) servlet.SQL {
 	}
 }
 
-func (ctx allInOneContext) Redis(name ...string) servlet.Redis {
+func (ctx keplerContext) Redis(name ...string) servlet.Redis {
 	if nil == ctx.svr.redisMap {
 		return nil
 	}
@@ -36,7 +44,7 @@ func (ctx allInOneContext) Redis(name ...string) servlet.Redis {
 	}
 }
 
-func (ctx allInOneContext) Publisher(name ...string) servlet.Publisher {
+func (ctx keplerContext) Publisher(name ...string) servlet.Publisher {
 	if nil == ctx.svr.redisMap {
 		return nil
 	}
@@ -47,7 +55,7 @@ func (ctx allInOneContext) Publisher(name ...string) servlet.Publisher {
 	}
 }
 
-func (ctx allInOneContext) Subscriber(name ...string) servlet.Subscriber {
+func (ctx keplerContext) Subscriber(name ...string) servlet.Subscriber {
 	if nil == ctx.svr.subMap {
 		return nil
 	}
@@ -58,11 +66,11 @@ func (ctx allInOneContext) Subscriber(name ...string) servlet.Subscriber {
 	}
 }
 
-func (ctx allInOneContext) Resource(name string) interface{} {
+func (ctx keplerContext) Resource(name string) interface{} {
 	return ctx.svr.resMap[name]
 }
 
-func (ctx allInOneContext) Config(key ...string) servlet.Config {
+func (ctx keplerContext) Config(key ...string) servlet.Config {
 	if len(key) > 0 {
 		return ctx.svr.cfg.Sub(key[0])
 	}
