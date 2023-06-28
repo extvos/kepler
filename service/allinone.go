@@ -256,7 +256,7 @@ func (svr *KeplerService) Use(args ...interface{}) fiber.Router {
 			for _, s := range a {
 				parameters = append(parameters, s)
 			}
-		case servlet.Handler:
+		case servlet.HandlerFunc:
 			parameters = append(parameters, svr.handlerFunc(a))
 		default:
 			panic(fmt.Sprintf("use: invalid handler %v\n", reflect.TypeOf(a)))

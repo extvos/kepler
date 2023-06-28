@@ -32,6 +32,10 @@ func MountInitialization(t servlet.TaskProc) {
 	builtinService.MountInitialization(t)
 }
 
+func MountResource(name string, res interface{}) {
+	builtinService.MountResource(name, res)
+}
+
 func Listen(address string) error {
 	return builtinService.Listen(address)
 	// return builtinService.Listen(address)
