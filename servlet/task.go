@@ -1,10 +1,10 @@
 package servlet
 
-// TaskProc defines type of task function.
-type TaskProc func(ctx TaskContext) error
+// TaskHandler defines type of task function.
+type TaskHandler = func(ctx TaskContext) error
 
-// EventProc defines type of event handler function.
-type EventProc func(ctx TaskContext, event interface{}) error
+// EventHandler defines type of event handler function.
+type EventHandler = func(ctx TaskContext, event interface{}) error
 
-// MessageProc defines type of message handler function.
-type MessageProc func(ctx TaskContext, topic string, msg interface{}, channel ...string) error
+// MessageHandler defines type of message handler function.
+type MessageHandler = func(ctx TaskContext, topic string, msg interface{}, channel ...string) error

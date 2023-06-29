@@ -1,11 +1,11 @@
 package servlet
 
 type (
-	// MiddlewareFunc defines a function to process middleware.
-	MiddlewareFunc = func(HandlerFunc) HandlerFunc
+	// RequestMiddleware defines a function to process middleware.
+	RequestMiddleware = func(RequestHandler) RequestHandler
 
-	// HandlerFunc defines a function to serve HTTP requests.
-	HandlerFunc = func(RequestContext) error
+	// RequestHandler defines a function to serve HTTP requests.
+	RequestHandler = func(RequestContext) error
 
 	// HTTPErrorHandler is a centralized HTTP error handler.
 	HTTPErrorHandler = func(error, RequestContext)

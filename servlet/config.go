@@ -33,6 +33,7 @@ type Config interface {
 	Unmarshal(v interface{}) error
 	UnmarshalKey(k string, v interface{}) error
 	Sub(k string) Config
+	Has(k string) bool
 }
 
 type vConfig struct {
@@ -50,7 +51,15 @@ func MakeConfig(v *viper.Viper) Config {
 }
 
 func (c vConfig) Sub(k string) Config {
-	return MakeConfig(c.v.Sub(k))
+	v := c.v.Sub(k)
+	if nil == v {
+		return nil
+	}
+	return MakeConfig(v)
+}
+
+func (c vConfig) Has(k string) bool {
+	return c.v.InConfig(k)
 }
 
 func (c vConfig) Get(k string, v ...interface{}) interface{} {

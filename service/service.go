@@ -28,12 +28,12 @@ func Initialize() error {
 	return builtinService.Initialize()
 }
 
-func MountInitialization(t servlet.TaskProc) {
+func MountInitialization(t servlet.TaskHandler) {
 	builtinService.MountInitialization(t)
 }
 
 func MountResource(name string, res interface{}) {
-	builtinService.MountResource(name, res)
+	builtinService.MountGear(name, res)
 }
 
 func Listen(address string) error {
@@ -55,67 +55,67 @@ func Use(handlers ...interface{}) fiber.Router {
 
 // Connect registers a new Connect fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Connect(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Connect(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Connect(path, handlers...)
 }
 
 // Delete registers a new Delete fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func Delete(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Delete(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Delete(path, handlers...)
 }
 
 // Get registers a new Get fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func Get(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Get(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Get(path, handlers...)
 }
 
 // Head registers a new Head fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Head(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Head(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Head(path, handlers...)
 }
 
 // Options registers a new Options fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Options(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Options(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Options(path, handlers...)
 }
 
 // Patch registers a new Patch fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Patch(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Patch(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Patch(path, handlers...)
 }
 
 // Post registers a new Post fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Post(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Post(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Post(path, handlers...)
 }
 
 // Put registers a new Put fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Put(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Put(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Put(path, handlers...)
 }
 
 // Trace registers a new Trace fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func Trace(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Trace(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Trace(path, handlers...)
 }
 
 // All registers a new fiber.Route for all HTTP methods and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func All(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func All(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.All(path, handlers...)
 }
 
 // Match registers a new fiber.Route for multiple HTTP methods and path with matching
 // handler in the fiber.Router with optional fiber.Route-level middleware.
-// func Match(methods []string, path string, handler servlet.HandlerFunc, middleware ...servlet.MiddlewareFunc) []*fiber.Router {
+// func Match(methods []string, path string, handler servlet.RequestHandler, middleware ...servlet.RequestMiddleware) []*fiber.Router {
 // 	return builtinService.Match(methods, path, builtinService.handlerFunc(handler), builtinService.middleware(middleware...)...)
 // }
 
@@ -126,18 +126,18 @@ func Static(prefix, root string) fiber.Router {
 }
 
 // File registers a new fiber.Route with path to serve a static file with optional fiber.Route-level middleware.
-// func File(path, file string, m ...servlet.MiddlewareFunc) *fiber.Route {
+// func File(path, file string, m ...servlet.RequestMiddleware) *fiber.Route {
 //     return builtinService.File(path, file, builtinService.middleware(m...)...)
 // }
 
 // Add registers a new fiber.Route for an HTTP method and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func Add(method, path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Add(method, path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Add(method, path, handlers...)
 }
 
 // Group creates a new fiber.Router group with prefix and optional group-level middleware.
-func Group(prefix string, handlers ...servlet.HandlerFunc) fiber.Router {
+func Group(prefix string, handlers ...servlet.RequestHandler) fiber.Router {
 	return builtinService.Group(prefix, handlers...)
 }
 
@@ -147,12 +147,12 @@ func Mount(prefix string, service *KeplerService) fiber.Router {
 }
 
 // // URI generates a URI from handler.
-// func Uri(handler servlet.HandlerFunc, params ...interface{}) string {
+// func Uri(handler servlet.RequestHandler, params ...interface{}) string {
 // 	return builtinService.Uri(builtinService.handlerFunc(handler), params...)
 // }
 //
 // // URL is an alias for `URI` function.
-// func URL(h servlet.HandlerFunc, params ...interface{}) string {
+// func URL(h servlet.RequestHandler, params ...interface{}) string {
 // 	return builtinService.URL(builtinService.handlerFunc(h), params...)
 // }
 //

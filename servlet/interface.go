@@ -9,7 +9,7 @@ type Publisher interface {
 
 // Subscriber  defines the interface for subscribing messages from topics.
 type Subscriber interface {
-	Subscribe(topic string, handler MessageProc, channel ...string) error
+	Subscribe(topic string, handler MessageHandler, channel ...string) error
 }
 
 // Redis defines the interface for Redis operations.

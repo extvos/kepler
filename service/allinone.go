@@ -50,18 +50,16 @@ type subConnector struct {
 
 // KeplerService structure
 type KeplerService struct {
-	_app            *fiber.App                    // the fiber app
-	cfg             servlet.Config                // the configuration
-	initTasks       []servlet.TaskProc            // application initialize tasks
-	dbMap           map[string]servlet.SQL        // Database connections
-	redisMap        map[string]servlet.Redis      // Redis connections
-	pubMap          map[string]servlet.Publisher  // Publisher connections
-	subMap          map[string]servlet.Subscriber // Subscriber connections
-	resMap          map[string]interface{}        // Resource instances
-	dbConnectors    []dbConnector                 // Database connectors
-	redisConnectors []redisConnector              // Redis connectors
-	pubConnectors   []pubConnector                // Publisher connectors
-	subConnectors   []subConnector                // Subscriber connectors
+	_app            *fiber.App               // the fiber app
+	cfg             servlet.Config           // the configuration
+	initTasks       []servlet.TaskHandler    // application initialize tasks
+	dbMap           map[string]servlet.SQL   // Database connections
+	redisMap        map[string]servlet.Redis // Redis connections
+	gearsMap        map[string]interface{}   // Gear instances
+	dbConnectors    []dbConnector            // Database connectors
+	redisConnectors []redisConnector         // Redis connectors
+	pubConnectors   []pubConnector           // Publisher connectors
+	subConnectors   []subConnector           // Subscriber connectors
 }
 
 const (
@@ -88,26 +86,6 @@ func (svr *KeplerService) RequireRedis(name string, connector ...servlet.RedisCo
 	svr.redisConnectors = append(svr.redisConnectors, c)
 }
 
-// RequirePublisher
-// Get publisher connection by connector
-func (svr *KeplerService) RequirePublisher(name string, connector ...servlet.PublishConnector) {
-	var c = pubConnector{name: name, connector: DefaultPubConnector}
-	if len(connector) > 0 {
-		c.connector = connector[0]
-	}
-	svr.pubConnectors = append(svr.pubConnectors, c)
-}
-
-// RequireSubscriber
-// Get subscriber connection by connector
-func (svr *KeplerService) RequireSubscriber(name string, connector ...servlet.SubscribeConnector) {
-	var c = subConnector{name: name, connector: DefaultSubConnector}
-	if len(connector) > 0 {
-		c.connector = connector[0]
-	}
-	svr.subConnectors = append(svr.subConnectors, c)
-}
-
 // Initialize
 // Run service initialization
 func (svr *KeplerService) Initialize() error {
@@ -121,14 +99,14 @@ func (svr *KeplerService) Initialize() error {
 
 // MountInitialization
 // Mount initialization tasks
-func (svr *KeplerService) MountInitialization(t servlet.TaskProc) {
+func (svr *KeplerService) MountInitialization(t servlet.TaskHandler) {
 	svr.initTasks = append(svr.initTasks, t)
 }
 
-// MountResource
-// Probe resource instances
-func (svr *KeplerService) MountResource(name string, res interface{}) {
-	svr.resMap[name] = res
+// MountGear
+// mount gear instances
+func (svr *KeplerService) MountGear(name string, res interface{}) {
+	svr.gearsMap[name] = res
 }
 
 func (svr *KeplerService) configDatabase() error {
@@ -159,54 +137,25 @@ func (svr *KeplerService) configRedis() error {
 	return nil
 }
 
-func (svr *KeplerService) configPublish() error {
-	for i, c := range svr.pubConnectors {
-		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
-			return e
-		} else {
-			svr.pubMap[c.name] = p
-			if i == 0 {
-				svr.pubMap[DefaultName] = p
-			}
-		}
-	}
-	return nil
-}
-
-func (svr *KeplerService) configSubscribe() error {
-	for i, c := range svr.subConnectors {
-		if p, e := c.connector(svr.cfg.Sub(c.name)); nil != e {
-			return e
-		} else {
-			svr.subMap[c.name] = p
-			if i == 0 {
-				svr.subMap[DefaultName] = p
-			}
-		}
-	}
-	return nil
-}
-
 // Config
 // Configure service with specified configuration.
 func (svr *KeplerService) Config(cfg servlet.Config) error {
 	svr.cfg = cfg
-	svr.dbMap = make(map[string]servlet.SQL)
-	svr.redisMap = make(map[string]servlet.Redis)
-	svr.pubMap = make(map[string]servlet.Publisher)
-	svr.subMap = make(map[string]servlet.Subscriber)
-	svr.resMap = make(map[string]interface{})
-	if e := svr.configDatabase(); nil != e {
-		return e
+	svr.gearsMap = make(map[string]interface{})
+	if cfg.Has("database") {
+		svr.dbMap = make(map[string]servlet.SQL)
+		if e := svr.configDatabase(); nil != e {
+			return e
+		}
 	}
-	if e := svr.configRedis(); nil != e {
-		return e
+	if cfg.Has("redis") {
+		svr.redisMap = make(map[string]servlet.Redis)
+		if e := svr.configRedis(); nil != e {
+			return e
+		}
 	}
-	if e := svr.configPublish(); nil != e {
-		return e
-	}
-	if e := svr.configSubscribe(); nil != e {
-		return e
+	if cfg.Has("gears") {
+		svr.gearsMap = make(map[string]interface{})
 	}
 	return nil
 }
@@ -218,14 +167,14 @@ func (svr *KeplerService) context(ctx *fiber.Ctx) servlet.RequestContext {
 	}
 }
 
-func (svr *KeplerService) handlerFunc(f servlet.HandlerFunc) fiber.Handler {
+func (svr *KeplerService) handlerFunc(f servlet.RequestHandler) fiber.Handler {
 	var ff = func(ctx *fiber.Ctx) error {
 		return f(svr.context(ctx))
 	}
 	return ff
 }
 
-func (svr *KeplerService) handlerFuncEx(f ...servlet.HandlerFunc) []fiber.Handler {
+func (svr *KeplerService) handlerFuncEx(f ...servlet.RequestHandler) []fiber.Handler {
 	var handlers []fiber.Handler
 	for _, h := range f {
 		handlers = append(handlers, svr.handlerFunc(h))
@@ -256,7 +205,7 @@ func (svr *KeplerService) Use(args ...interface{}) fiber.Router {
 			for _, s := range a {
 				parameters = append(parameters, s)
 			}
-		case servlet.HandlerFunc:
+		case servlet.RequestHandler:
 			parameters = append(parameters, svr.handlerFunc(a))
 		default:
 			panic(fmt.Sprintf("use: invalid handler %v\n", reflect.TypeOf(a)))
@@ -267,67 +216,67 @@ func (svr *KeplerService) Use(args ...interface{}) fiber.Router {
 
 // Connect registers a new Connect fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Connect(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Connect(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Connect(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Delete registers a new Delete fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func (svr *KeplerService) Delete(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Delete(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Delete(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Get registers a new Get fiber.Route for a path with matching handler in the fiber.Router
 // with optional fiber.Route-level middleware.
-func (svr *KeplerService) Get(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Get(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Get(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Head registers a new Head fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Head(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Head(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Head(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Options registers a new Options fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Options(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Options(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Options(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Patch registers a new Patch fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Patch(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Patch(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Patch(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Post registers a new Post fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Post(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Post(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Post(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Put registers a new Put fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Put(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Put(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Put(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Trace registers a new Trace fiber.Route for a path with matching handler in the
 // fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Trace(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Trace(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Trace(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // All registers a new fiber.Route for all HTTP methods and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) All(path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) All(path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.All(path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Match registers a new fiber.Route for multiple HTTP methods and path with matching
 // handler in the fiber.Router with optional fiber.Route-level middleware.
-// func Match(methods []string, path string, handler servlet.HandlerFunc, middleware ...servlet.MiddlewareFunc) []*fiber.Router {
+// func Match(methods []string, path string, handler servlet.RequestHandler, middleware ...servlet.RequestMiddleware) []*fiber.Router {
 // 	return builtinService.Match(methods, path, builtinService.handlerFunc(handler), builtinService.middleware(middleware...)...)
 // }
 
@@ -338,18 +287,18 @@ func (svr *KeplerService) Static(prefix, root string) fiber.Router {
 }
 
 // File registers a new fiber.Route with path to serve a static file with optional fiber.Route-level middleware.
-// func File(path, file string, m ...servlet.MiddlewareFunc) *fiber.Route {
+// func File(path, file string, m ...servlet.RequestMiddleware) *fiber.Route {
 //     return svr._app.File(path, file, svr.middleware(m...)...)
 // }
 
 // Add registers a new fiber.Route for an HTTP method and path with matching handler
 // in the fiber.Router with optional fiber.Route-level middleware.
-func (svr *KeplerService) Add(method, path string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Add(method, path string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Add(method, path, svr.handlerFuncEx(handlers...)...)
 }
 
 // Group creates a new fiber.Router group with prefix and optional group-level middleware.
-func (svr *KeplerService) Group(prefix string, handlers ...servlet.HandlerFunc) fiber.Router {
+func (svr *KeplerService) Group(prefix string, handlers ...servlet.RequestHandler) fiber.Router {
 	return svr._app.Group(prefix, svr.handlerFuncEx(handlers...)...)
 }
 

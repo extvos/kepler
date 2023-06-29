@@ -23,8 +23,8 @@ func (ctx keplerContext) Session() servlet.Session {
 }
 
 func (ctx keplerContext) SQL(name ...string) servlet.SQL {
-	if nil == ctx.svr.dbMap {
-		return nil
+	if nil == ctx.svr.dbMap || len(ctx.svr.dbMap) == 0 {
+		panic("no database was mounted")
 	}
 	if len(name) > 0 {
 		return ctx.svr.dbMap[name[0]]
@@ -34,8 +34,8 @@ func (ctx keplerContext) SQL(name ...string) servlet.SQL {
 }
 
 func (ctx keplerContext) Redis(name ...string) servlet.Redis {
-	if nil == ctx.svr.redisMap {
-		return nil
+	if nil == ctx.svr.redisMap || len(ctx.svr.redisMap) == 0 {
+		panic("no redis was mounted")
 	}
 	if len(name) > 0 {
 		return ctx.svr.redisMap[name[0]]
@@ -44,30 +44,12 @@ func (ctx keplerContext) Redis(name ...string) servlet.Redis {
 	}
 }
 
-func (ctx keplerContext) Publisher(name ...string) servlet.Publisher {
-	if nil == ctx.svr.redisMap {
-		return nil
+func (ctx keplerContext) Gear(name string) interface{} {
+	p, b := ctx.svr.gearsMap[name]
+	if !b {
+		panic("no gear named '" + name + "' was registered")
 	}
-	if len(name) > 0 {
-		return ctx.svr.pubMap[name[0]]
-	} else {
-		return ctx.svr.pubMap[DefaultName]
-	}
-}
-
-func (ctx keplerContext) Subscriber(name ...string) servlet.Subscriber {
-	if nil == ctx.svr.subMap {
-		return nil
-	}
-	if len(name) > 0 {
-		return ctx.svr.subMap[name[0]]
-	} else {
-		return ctx.svr.subMap[DefaultName]
-	}
-}
-
-func (ctx keplerContext) Resource(name string) interface{} {
-	return ctx.svr.resMap[name]
+	return p
 }
 
 func (ctx keplerContext) Config(key ...string) servlet.Config {
