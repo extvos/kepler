@@ -27,7 +27,7 @@ func NewHandler[T xql.TableIdentified](ds ...string) func(servlet.RequestContext
 		case fiber.MethodGet:
 			if q, e1 := h.buildQuery(ctx); nil != e1 {
 				return onFailure(ctx, fiber.StatusBadRequest, e1.Error())
-			} else if r, e2 := h.onGet(q); nil != e2 {
+			} else if r, e2 := h.onGet(ctx, q); nil != e2 {
 				return onFailure(ctx, fiber.StatusInternalServerError, e2.Error())
 			} else {
 				if r.Code == 0 {
@@ -39,7 +39,7 @@ func NewHandler[T xql.TableIdentified](ds ...string) func(servlet.RequestContext
 			var obj T
 			if e1 := json.Unmarshal(ctx.Ctx().Request().Body(), &obj); nil != e1 {
 				return onFailure(ctx, fiber.StatusBadRequest, e1.Error())
-			} else if r, e2 := h.onPost(obj); nil != e2 {
+			} else if r, e2 := h.onPost(ctx, obj); nil != e2 {
 				return onFailure(ctx, fiber.StatusInternalServerError, e2.Error())
 			} else {
 				if r.Code == 0 {
@@ -67,22 +67,22 @@ func onFailure(ctx servlet.RequestContext, status int, msg string) error {
 	return ctx.Ctx().Status(status).JSON(Result[string]{Code: status, Message: msg})
 }
 
-func (*Handler[T]) onPost(obj T) (Result[T], error) {
+func (*Handler[T]) onPost(ctx servlet.RequestContext, obj T) (Result[T], error) {
 	log.Debugln("onPost:>", obj)
 	return Result[T]{Data: obj}, nil
 }
 
-func (*Handler[T]) onGet(queries Query) (Result[[]T], error) {
+func (*Handler[T]) onGet(ctx servlet.RequestContext, queries Query) (Result[[]T], error) {
 	log.Debugln("onGet:>", queries)
 	return Result[[]T]{Data: []T{}}, nil
 }
 
-func (*Handler[T]) onPut(obj T, queries Query) (Result[int64], error) {
+func (*Handler[T]) onPut(ctx servlet.RequestContext, obj T, queries Query) (Result[int64], error) {
 	log.Debugln("onPut:>", obj, queries)
 	return Result[int64]{Data: 0}, nil
 }
 
-func (*Handler[T]) onDelete(queries Query) (Result[int64], error) {
+func (*Handler[T]) onDelete(ctx servlet.RequestContext, queries Query) (Result[int64], error) {
 	log.Debugln("onDelete:>", queries)
 	return Result[int64]{Data: 0}, nil
 }
